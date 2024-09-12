@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useSocket } from "@/context/SocketProvider"
+import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const LoginPage = () => {
@@ -8,11 +10,30 @@ export const LoginPage = () => {
   const [email, setEmail] = useState("emrans4@gm.com");
   const [room, setRoom] = useState('33');
 
+  const socket = useSocket();
+  const router = useRouter();
+  
+  // 1 Sent an event request to server to join
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    console.log(email, room);
-    
+    //2 You send a room:join event when the form is submitted, informing the server that the user wants to join a specific room.
+    socket?.emit("room:join", {email, room}); 
   }
+
+  // 4
+  //
+  const handleJoiRoom = (data) => {
+    const {email, room} = data;
+    router.push(`/room/${room}`); 
+  }
+
+  useEffect(()=>{
+    //3  when room:join event received inside handleJoinRoom
+    socket.on("room:join", handleJoiRoom)
+    return ()=> {
+      socket.off("room:join", handleJoiRoom)
+    }
+  },[socket])
 
 
 

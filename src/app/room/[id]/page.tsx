@@ -1,12 +1,10 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 
 export const RoomPage = () => {
   
   const router = useParams();
-
-  // console.log(router);
   
 
   return (
