@@ -3,6 +3,8 @@ import ReactPlayer from  "react-player"
 import { useSocket } from "@/context/SocketProvider"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import PeerService from "@/services/peer"
+import peer from "@/services/peer"
 
 export const RoomPage = () => {
 
@@ -18,15 +20,24 @@ export const RoomPage = () => {
 
   const handleUserCall = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+    const offer = await peer.getOffer();
+    socket.emit("user:call", {to: userId, offer})
     setMyStream(stream);
+  }
+
+  const handleIncomingCall = ({from, offer}) =>{
+    console.log("incomming call ", from, offer);
+    
   }
 
   useEffect(()=>{
     socket.on("user:joined", userHandler);
+    socket.on("incomming:call", handleIncomingCall)
     return ()=> {
       socket.off("user:joined", userHandler)
+      socket.off("incomming:call", handleIncomingCall)
     }
-  },[socket, userHandler]);
+  },[socket, userHandler, handleIncomingCall]);
 
   console.log(myStream);
   
